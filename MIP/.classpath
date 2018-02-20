@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="lib"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MipConnectorPlugin"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.4.4.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-client-7.4.4.v20110707.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-http-7.4.4.v20110707.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-io-7.4.4.v20110707.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-7.4.4.v20110707.jar"/>
+	<classpathentry kind="lib" path="lib/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/commons-codec-1.10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/curvesapi-1.04.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/poi-examples-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/poi-excelant-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/poi-ooxml-schemas-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/poi-scratchpad-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/Desktop/New folder/MIP/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jon Cornado/.m2/repository/javax/ws/rs/javax.ws.rs-api/2.0.1/javax.ws.rs-api-2.0.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

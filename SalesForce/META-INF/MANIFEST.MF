@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SalesForce
+Bundle-SymbolicName: SalesForce
+Bundle-Version: 1.0.0.qualifier
