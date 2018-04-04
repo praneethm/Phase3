@@ -131,4 +131,10 @@ public class AMPLIFUND implements Plugin {
 		AMPLIFUND.status = status;
 	}
 
+	@Override
+	public boolean validate() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

@@ -131,4 +131,10 @@ public class salesForce implements Plugin {
 		return status;
 	}
 
+	@Override
+	public boolean validate() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
