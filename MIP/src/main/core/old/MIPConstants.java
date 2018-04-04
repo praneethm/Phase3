@@ -5,14 +5,11 @@
  */
 package main.core.old;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
@@ -20,14 +17,11 @@ import org.json.simple.JSONObject;
 
 import main.core.MIP;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
 /**
  *
  * @author Saranya
  */
-public class Constants {
+public class MIPConstants {
 
 	public static final String OAUTH_ENDPOINT = "/services/oauth2/token";
 	public static final String REST_ENDPOINT = "/services/data";
@@ -87,78 +81,49 @@ public class Constants {
 				switch (rs.getString(1)) {
 
 				case "MIPINSTANCEURL": {
-					Constants.MIP_BASE_URI = rs.getString(2);
+					MIPConstants.MIP_BASE_URI = rs.getString(2);
 					break;
 				}
 				case "USERNAME": {
-					Constants.MIP_LOGIN = rs.getString(2);
+					MIPConstants.MIP_LOGIN = rs.getString(2);
 					break;
 				}
 				case "PASSWORD": {
-					Constants.MIP_PASSWORD = rs.getString(2);
+					MIPConstants.MIP_PASSWORD = rs.getString(2);
 					break;
 				}
 				case "DATABASE": {
-					Constants.MIP_ORG = rs.getString(2);
+					MIPConstants.MIP_ORG = rs.getString(2);
 					break;
 				}
 				case "CODE": {
-					Constants.GLcode_CSH = rs.getString(2);
+					MIPConstants.GLcode_CSH = rs.getString(2);
 					break;
 				}
 				case "OFFSET": {
 					if (null == rs.getString(2))
-						Constants.OFFSET = "false";
+						MIPConstants.OFFSET = "false";
 					else
-						Constants.OFFSET = rs.getString(2);
+						MIPConstants.OFFSET = rs.getString(2);
 					break;
 				}
 				case "USEMIPONLINE":{
 					if(null==rs.getString(2) || rs.getString(2).equalsIgnoreCase("false"))
-						Constants.USEONLINE=false;
+						MIPConstants.USEONLINE=false;
 					else
-						Constants.USEONLINE=true;
+						MIPConstants.USEONLINE=true;
 					break;
 				}
 
 				}
 
 			}
-			if(Constants.USEONLINE)
-				Constants.MIP_BASE_URI="https://mipapi.abilaonline.com/";
+			if(MIPConstants.USEONLINE)
+				MIPConstants.MIP_BASE_URI="https://mipapi.abilaonline.com/";
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
 
-		try {
-			conn = MIP.conn;
-			ps = conn.prepareStatement("select  * from view_cred(?)");
-			ps.setString(1, "AMPLIFUND");
-			rs = ps.executeQuery();
-			System.out.println("executd query on db");
-			while (rs.next()) {
-
-				switch (rs.getString(1).toUpperCase()) {
-
-				case "LOCATION": {
-					Constants.LOCATION = rs.getString(2);
-					break;
-				}
-				case "APPTOKEN": {
-					Constants.APPTOKEN = rs.getString(2);
-					break;
-				}
-				case "USERTOKEN": {
-					Constants.USERTOKEN = rs.getString(2);
-					break;
-				}
-
-				}
-
-			}
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
 
 	}
 

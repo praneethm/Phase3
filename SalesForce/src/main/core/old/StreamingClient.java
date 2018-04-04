@@ -37,6 +37,8 @@ import org.json.simple.parser.ParseException;
 
 import main.core.salesForce;
 import main.core.Plugin.statusType;
+import main.core.mail.Format;
+import main.core.mail.Mailing;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,6 +46,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 
 /**
  *
@@ -292,6 +296,11 @@ public class StreamingClient {
 		} catch (MalformedURLException ex) {
 			Logger.getLogger(StreamingClient.class.getName()).log(Level.SEVERE, null, ex);
 			salesForce.setStatus(statusType.stopped);
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			Format format = Format.build().addSystem("SALESFORCE").addError("Failed to Authenticate").addStack(sw.toString()).addsubject(ex.toString());
+			Mailing.sendMail(format, "2");
 			return null;
 		}
 	}

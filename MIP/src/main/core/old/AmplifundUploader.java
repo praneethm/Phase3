@@ -25,10 +25,9 @@ public class AmplifundUploader extends Thread {
 	public void run() {
 		// TODO Auto-generated method stub
 		ConnectToMip.LoginIntoMip("admin", "api", "http://ec2-52-27-100-34.us-west-2.compute.amazonaws.com:9001");
-		String lstrPath = Constants.MIP_BASE_URI + "/api/te/apinvoices/sessions?status=posted";
-		JSONArray ljsonSessionIds = RestCalls.RestGetJsonArray(lstrPath, Constants.REQUESTING_CLASS.MIP);
+		String lstrPath = MIPConstants.MIP_BASE_URI + "/api/te/apinvoices/sessions?status=posted";
+		JSONArray ljsonSessionIds = MIPRestCalls.RestGetJsonArray(lstrPath, MIPConstants.REQUESTING_CLASS.MIP);
 		System.out.println(ljsonSessionIds);
-
 		for (Object object : ljsonSessionIds) {
 			JSONObject jobj = (JSONObject) object;
 
@@ -44,8 +43,8 @@ public class AmplifundUploader extends Thread {
 		}
 
 		for (String object : SESSION_SESSIONNUMID) {
-			String lstrPath1 = Constants.MIP_BASE_URI + "/api/te/apinvoices/sessions/" + object + "/documents";
-			JSONArray ljsonSessionIds1 = RestCalls.RestGetJsonArray(lstrPath1, Constants.REQUESTING_CLASS.MIP);
+			String lstrPath1 = MIPConstants.MIP_BASE_URI + "/api/te/apinvoices/sessions/" + object + "/documents";
+			JSONArray ljsonSessionIds1 = MIPRestCalls.RestGetJsonArray(lstrPath1, MIPConstants.REQUESTING_CLASS.MIP);
 			for (Object object2 : ljsonSessionIds1) {
 				JSONObject jobj = (JSONObject) object2;
 				System.out.println(jobj.get("TEDOC_DOCNUM"));
@@ -67,8 +66,8 @@ public class AmplifundUploader extends Thread {
 				"-----------------------------------------------------------------------------------------------------------------------------");
 		for (String session : docsWithSession.keySet()) {
 			for (String docs : docsWithSession.get(session)) {
-				String lstrPath2 = Constants.MIP_BASE_URI + "/api/te/apinvoices/sessions/"+session+"/documents/"+docs;
-				RestCalls.RestGetJsonArray(lstrPath2, Constants.REQUESTING_CLASS.MIP);
+				String lstrPath2 = MIPConstants.MIP_BASE_URI + "/api/te/apinvoices/sessions/"+session+"/documents/"+docs;
+				MIPRestCalls.RestGetJsonArray(lstrPath2, MIPConstants.REQUESTING_CLASS.MIP);
 				System.out.println(jsonobjectDocs);
 
 			}

@@ -20,6 +20,7 @@ public interface Plugin {
 	//Additionality functionality that run() method cannot handle, e.g used in mip to get some values from MIP server even before setting up server
 	public Object extras(Object o);
 	public statusType getStatus();
+	public boolean validate();
 	public enum statusType {
 		loading,
 		running,

@@ -18,14 +18,14 @@ public class UpdateEndApplication extends HttpServlet {
 		if (MasterBean.getHolder().containsKey(system.trim())) {
 			System.out.println("saving information for system " + system);
 			for (String string : MasterBean.getHolder().get(system).keySet()) {
-				MasterBean.getHolder().get(system).put(string, req.getParameter(string));
+				MasterBean.getHolder().get(system).get(string).setValue(req.getParameter(string));
 			}
 			
 			
 
 		}
 		
-		MasterBean.updateDatabase(system);
+		MasterBean.updateDatabase(system,"system");
 		resp.flushBuffer();
 
 	}

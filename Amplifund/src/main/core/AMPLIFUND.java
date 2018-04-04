@@ -11,6 +11,11 @@ import org.json.simple.JSONObject;
 import com.main.business.Constants;
 import com.main.business.Process;
 
+import main.core.Plugin.statusType;
+import main.core.amplifund.Scheduler;
+import main.core.mail.Mailing;
+import main.core.mail.TemplateLvl2;
+
 /**
  * 
  * @author Jon Cornado 
@@ -24,7 +29,9 @@ public class AMPLIFUND implements Plugin {
 	private static Listner listner;
 	public static HashMap<String, Object> interfaceData = new HashMap<>();
 	private static final String name = "AMPLIFUND";
-
+	public static statusType status = statusType.loading;
+	private static Scheduler schedule;
+	
 	@Override
 	public String getPluginName() {
 		// TODO Auto-generated method stub
@@ -41,6 +48,12 @@ public class AMPLIFUND implements Plugin {
 	public boolean stop() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	public static void setinterfaceData(String system, ArrayList<ArrayList<String>> values) {
+		interfaceData.put(system, values);
+		listner.process("AMPLIFUND", system);
+
 	}
 
 	@Override
@@ -59,6 +72,8 @@ public class AMPLIFUND implements Plugin {
 		conn = (Connection) DB;
 		setListner(listner);
 		Constants.ReadConstants();
+		schedule = new Scheduler();
+		schedule.startScheduler();
 		return this;
 	}
 
@@ -80,17 +95,27 @@ public class AMPLIFUND implements Plugin {
 		return null;
 	}
 
-	public void expense(ArrayList<ArrayList<String>> holder) {
+	public static void expense(ArrayList<ArrayList<String>> holder) {
 		int size = holder.size() - 1;
 		ArrayList<String> temp;
 		System.out.println("Printing expense in reverse order " + size);
+		TemplateLvl2 format =TemplateLvl2.build();
+		boolean pass = true;
 		for (int i = size; i > 0; i--) {
 			// System.out.print("at "+i+"---");
 			temp = holder.get(i);
 
 			System.out.println("inserting " + i + " record");
 			System.out.println(temp);
-			Process.execute(temp.get(3), temp.get(4), temp.get(2), temp.get(5), temp.get(6), temp.get(0));
+			pass =Process.execute(temp.get(1),temp.get(3), temp.get(4), temp.get(2), temp.get(5), temp.get(6), temp.get(0),false);
+			if(!pass) {
+				format.addTransaction(temp.get(2), temp.get(3), temp.get(4), temp.get(5), temp.get(6));
+				format.hasTransactions=true;
+			}
+		}
+		if(format.hasTransactions) {
+			format.addError("Amplifund - transactions failed while processing EXCEL file").subject("Transactions Failed");
+			Mailing.sendMail(format, "1");
 		}
 
 	}
@@ -98,7 +123,12 @@ public class AMPLIFUND implements Plugin {
 	@Override
 	public statusType getStatus() {
 		// TODO Auto-generated method stub
-		return statusType.passive;
+		return status;
+	}
+
+	public static void setStatus(statusType status) {
+
+		AMPLIFUND.status = status;
 	}
 
 }

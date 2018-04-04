@@ -43,7 +43,7 @@ public class ActionBarSetup extends HttpServlet {
 				// System.out.println("saving information for system " + now);
 				for (String string : mb.getHolder().get(now).keySet()) {
 					System.out.println("keys " + string + "value" + req.getParameter(string));
-					mb.getHolder().get(now).put(string, req.getParameter(string));
+					mb.getHolder().get(now).get(string).setValue(req.getParameter(string));
 
 				}
 

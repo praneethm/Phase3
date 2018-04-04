@@ -12,21 +12,28 @@ import java.util.Map;
 
 import javax.xml.ws.Holder;
 
+import main.core.beans.keysSet;
 import main.database.communication.Mysqlconn;
+
 /**
  * 
- * @author Jon Cornado
- * This class holds all system names - keys - values
+ * @author Jon Cornado This class holds all system names - keys - values
  */
 public class MasterBean {
 
 	// private static LinkedHashMap<String, ArrayList<String>> holder = new
 	// LinkedHashMap<>();
-	private static LinkedHashMap<String, HashMap<String, String>> holder = new LinkedHashMap<>();
+	private static LinkedHashMap<String, LinkedHashMap<String, keysSet>> holder = new LinkedHashMap<>();
+	private static LinkedHashMap<String, LinkedHashMap<String, keysSet>> Settingsholder = new LinkedHashMap<>();
 
-	public static LinkedHashMap<String, HashMap<String, String>> getHolder() {
+	public static LinkedHashMap<String, LinkedHashMap<String, keysSet>> getHolder() {
 		return holder;
 	}
+
+	public static LinkedHashMap<String, LinkedHashMap<String, keysSet>> getSettingsHolder() {
+		return Settingsholder;
+	}
+
 	static Connection conn = null;
 	static ResultSet rs = null;
 	static ResultSet rs1 = null;
@@ -37,27 +44,40 @@ public class MasterBean {
 	private static ArrayList<String> getNext;
 
 	public static void getSystems() {
-		HashMap<String, String> ar = new HashMap<String, String>(); 
+
 		try {
 			conn = Mysqlconn.getConnection();
-			
+
 			ps = conn.prepareStatement("select get_sysname()");
-			
+
 			rs = ps.executeQuery();
-			
-			
-			//System.out.println("executd query on db");
+
+			// System.out.println("executd query on db");
 			while (rs.next()) {
-				//System.out.println("system "+rs.getString(1));
-				HashMap<String, String> pair = new HashMap<>();
+				// System.out.println("system "+rs.getString(1));
+
+				LinkedHashMap<String, keysSet> pair = new LinkedHashMap<>();
 				ps1 = conn.prepareStatement("select * from view_cred(?)");
 				ps1.setString(1, rs.getString(1));
 				rs1 = ps1.executeQuery();
-				
+
 				while (rs1.next()) {
-					//System.out.println("system "+rs.getString(1)+" key "+rs1.getString(1)+" value "+rs1.getString(1));
-					System.out.println("key:"+rs1.getString(1)+" value:"+rs1.getString(2));
-					pair.put(rs1.getString(1),rs1.getString(2));
+					keysSet keyset = new keysSet();
+					// System.out.println("system "+rs.getString(1)+" key "+rs1.getString(1)+" value
+					// "+rs1.getString(1));
+					System.out.println("system:" + rs.getString(1) + " key:" + rs1.getString(1) + " value:"
+							+ rs1.getString(2) + " type" + rs1.getString(3) + " effectedkey" + rs1.getString(4) + " url"
+							+ rs1.getString(5) + " options" + rs1.getString(6));
+					keyset.setValue(rs1.getString(2));
+					keyset.setType(rs1.getString(3));
+					keyset.setEffectedKey(rs1.getString(4));
+					keyset.setUrl(rs1.getString(5));
+					keyset.setOptions(rs1.getString(6));
+					keyset.setDisplayName(rs1.getString(7));
+					keyset.setToolTip(rs1.getString(8));
+					keyset.setVisible(rs1.getBoolean(9));
+					pair.put(rs1.getString(1), keyset);
+
 				}
 				holder.put(rs.getString(1), pair);
 
@@ -70,7 +90,7 @@ public class MasterBean {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		
+
 		/*
 		 * ar = new HashMap<String, String>(); ar.put("user name", "");
 		 * ar.put("address", ""); holder.put("User Details", ar); ar = new
@@ -81,19 +101,58 @@ public class MasterBean {
 		 */
 	}
 
+	public static void getSettings() {
+		try {
+			conn = Mysqlconn.getConnection();
+			ps = conn.prepareStatement("SELECT settings_name FROM public.systems_settings");
+			rs = ps.executeQuery();
+			LinkedHashMap<String, keysSet> pair = new LinkedHashMap<>();
+
+			while (rs.next()) {
+
+				ps1 = conn.prepareStatement("select * from view_settings_cred(?)");
+				ps1.setString(1, rs.getString(1));
+				rs1 = ps1.executeQuery();
+				while (rs1.next()) {
+					keysSet keyset = new keysSet();
+					// System.out.println("system "+rs.getString(1)+" key "+rs1.getString(1)+" value
+					// "+rs1.getString(1));
+					System.out.println("system:" + rs.getString(1) + " key:" + rs1.getString(1) + " value:"
+							+ rs1.getString(2) + " type" + rs1.getString(3) + " effectedkey" + rs1.getString(4) + " url"
+							+ rs1.getString(5) + " options" + rs1.getString(6)+ " displayname" + rs1.getString(7));
+					keyset.setValue(rs1.getString(2));
+					keyset.setType(rs1.getString(3));
+					keyset.setEffectedKey(rs1.getString(4));
+					keyset.setUrl(rs1.getString(5));
+					keyset.setOptions(rs1.getString(6));
+					keyset.setDisplayName(rs1.getString(7));
+					keyset.setToolTip(rs1.getString(8));
+					pair.put(rs1.getString(1), keyset);
+				}
+				Settingsholder.put(rs.getString(1), pair);
+
+			}
+			conn.close();
+		} catch (Exception e) {
+
+		}
+
+	}
+
 	public String getNext(String value) {
-		//System.out.println("searching index of " + value);
+		// System.out.println("searching index of " + value);
 		getNext = new ArrayList(holder.keySet());
 		int position = getNext.indexOf(value.trim());
-		//System.out.println("comparing -" + value.trim() + "-");
-		//System.out.println("comparing -" + getNext.get(0) + "-");
-		//System.out.println("printing position " + position);
+		// System.out.println("comparing -" + value.trim() + "-");
+		// System.out.println("comparing -" + getNext.get(0) + "-");
+		// System.out.println("printing position " + position);
 		if (holder.size() > position + 1)
 			return getNext.get(++position);
 
 		return "";
 	}
-// insert key values into database - used in setup phase to insert all values
+
+	// insert key values into database - used in setup phase to insert all values
 	public static boolean updateDatabase() {
 
 		ResultSet rs = null;
@@ -101,77 +160,89 @@ public class MasterBean {
 		PreparedStatement ps;
 		conn = Mysqlconn.getConnection();
 
-
-		
 		for (String string : holder.keySet()) {
-			if(!string.equalsIgnoreCase("User Details"))
-			for (String key : holder.get(string).keySet()) {
+			if (!string.equalsIgnoreCase("User Details"))
+				for (String key : holder.get(string).keySet()) {
 
-				
-				try {
-					ps = conn.prepareStatement("select upd_keyvalue(?,?,?)");
-					System.out.println("setting value"+holder.get(string).get(key)+" system "+string+" key "+key);
-					ps.setString(1, holder.get(string).get(key));
-					ps.setString(2, string);
-					ps.setString(3, key);
-					rs = ps.executeQuery();
+					try {
+						ps = conn.prepareStatement("select upd_keyvalue(?,?,?)");
+						ps.setString(1, holder.get(string).get(key).getValue());
+						ps.setString(2, string);
+						ps.setString(3, key);
+						rs = ps.executeQuery();
 
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return false;
+					}
+
 				}
-				
-				
-			}
 
 		}
 		try {
-			ps=conn.prepareStatement("select upd_setupstatus('true')");
-			
-			rs=ps.executeQuery();
+			ps = conn.prepareStatement("select upd_setupstatus('true')");
+
+			rs = ps.executeQuery();
 			System.out.println("setting setup trigger to true");
-			ps=conn.prepareStatement("select view_setupstatus()");
-			rs=ps.executeQuery();
+			ps = conn.prepareStatement("select view_setupstatus()");
+			rs = ps.executeQuery();
 			rs.next();
 			Dashboard.setSetunDone(rs.getBoolean(1));
-			System.out.println("safter setting trigger value: "+rs.getBoolean(1));
+			System.out.println("safter setting trigger value: " + rs.getBoolean(1));
+			conn.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
-		
+
 		return true;
 	}
-	// update only key values for one system
-	public static boolean updateDatabase(String system) {
-		
 
-		
+	// update only key values for one system
+	public static boolean updateDatabase(String system,String type) {
+
 		ResultSet rs = null;
 		Connection conn = null;
 		PreparedStatement ps;
 		conn = Mysqlconn.getConnection();
-		for (String key : holder.get(system).keySet()) {
+		LinkedHashMap<String, LinkedHashMap<String, keysSet>> tmp = null;
+		boolean forSystems = true;
+		switch (type) {
+		case "system": {
+			tmp = holder;
+			forSystems = true;
+			break;
 
-			
-			try {
-				ps = conn.prepareStatement("select upd_keyvalue(?,?,?)");
-				ps.setString(1, holder.get(system).get(key));
+		}
+		case "settings": {
+			tmp = Settingsholder;
+			forSystems = false;
+			break;
+		}
+		}
+
+		try {
+			for (String key : tmp.get(system).keySet()) {
+				if (forSystems)
+					ps = conn.prepareStatement("select upd_keyvalue(?,?,?)");
+				else
+					ps = conn.prepareStatement("select upd_settings_keyvalue(?,?,?)");
+				ps.setString(1, tmp.get(system).get(key).getValue());
 				ps.setString(2, system);
 				ps.setString(3, key);
 				rs = ps.executeQuery();
 
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
 			}
-			
-			
+			conn.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		}
-		
+
 		return true;
 	}
-	
 
 }

@@ -34,7 +34,7 @@ public class Mysqlconn
     	 //M0rdor
     	 //praneeth
     	 //M0rdor19
-         connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/MIPCONN", "postgres", "praneeth");
+         connection = DriverManager.getConnection("jdbc:postgresql://35.162.65.37:5432/MIPCONN", "postgres", "M0rdor19");
      }
      catch(SQLException e)
      {

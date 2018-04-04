@@ -10,9 +10,8 @@ import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 
 import main.core.Plugin.statusType;
-import main.core.amplifund.Scheduler;
 import main.core.old.ConnectToMip;
-import main.core.old.Constants;
+import main.core.old.MIPConstants;
 
 /**
  * 
@@ -27,7 +26,6 @@ public class MIP implements Plugin {
 	public static HashMap<String, LinkedBlockingQueue<JSONObject>> processData = new HashMap<>();
 	public static HashMap<String, Object> interfaceData = new HashMap<>();
 	public static statusType status = statusType.loading;
-	private static Scheduler schedule;
 
 	@Override
 	public String getPluginName() {
@@ -44,7 +42,6 @@ public class MIP implements Plugin {
 	@Override
 	public boolean stop() {
 		// TODO Auto-generated method stub
-		schedule.stopScheculer();
 		return false;
 	}
 
@@ -54,9 +51,7 @@ public class MIP implements Plugin {
 		if (processData instanceof HashMap<?, ?>) {
 			HashMap<String, JSONObject> holder = (HashMap<String, JSONObject>) processData;
 			ConnectToMip.InsertDocument(holder);
-		} else {
-			schedule.startScheduler();
-		}
+		} 
 	}
 
 	@Override
@@ -64,9 +59,8 @@ public class MIP implements Plugin {
 		// TODO Auto-generated method stub
 		conn = (Connection) DB;
 		setListner(listner);
-		Constants.ReadFileForMipUrl();
-		schedule = new Scheduler();
-		schedule.startScheduler();
+		MIPConstants.ReadFileForMipUrl();
+
 		return this;
 	}
 
@@ -125,6 +119,12 @@ public class MIP implements Plugin {
 	public static void setStatus(statusType status) {
 
 		MIP.status = status;
+	}
+
+	@Override
+	public boolean validate() {
+		// TODO Auto-generated method stub
+		return ConnectToMip.LoginIntoMip();
 	}
 
 }

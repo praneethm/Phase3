@@ -19,7 +19,7 @@ public class CredentialEdit {
 		for (String string : mb.getHolder().get(systemName).keySet()) {
 			if (!string.equalsIgnoreCase("OFFSET")) {
 				if ((null != mb.getHolder().get(systemName).get(string))) {
-					String value = mb.getHolder().get(systemName).get(string);
+					String value = mb.getHolder().get(systemName).get(string).getValue();
 					if (string.equalsIgnoreCase("CODE")) {
 						response.append(
 								"<tr><td>Disable Offset:</td><td><input type=\"checkbox\" name=\"OFFSET\" id=\"OFFSET\" value=\"true\" checked></td></tr><tr><td>Select Cash Account:</td><td><select class=\"quantity\" id=\"CODE\" name=\"CODE\"><option value="

@@ -5,9 +5,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import main.core.MIP;
+import com.main.business.Constants;
+
+import main.core.AMPLIFUND;
 import main.core.Plugin.statusType;
-import main.core.old.Constants;
+
 
 /**
  * 
@@ -43,12 +45,12 @@ public class Scheduler {
 	 * start the scheduler, changes the state of the plugin accordingly
 	 */
 	public void startScheduler() {
-		Constants.ReadFileForMipUrl();
+		Constants.ReadConstants();
 		System.out.println("starting schedules");
-		MIP.setStatus(statusType.loading);
+		AMPLIFUND.setStatus(statusType.loading);
 		schedule = new Scheduler();
 		schedule.beepForAnHour();
-		MIP.setStatus(statusType.running);
+		AMPLIFUND.setStatus(statusType.running);
 
 	}
 
@@ -57,7 +59,7 @@ public class Scheduler {
 	 */
 	public void stopScheculer() {
 		System.out.println("stopping schedules");
-		MIP.setStatus(statusType.loading);
+		AMPLIFUND.setStatus(statusType.loading);
 		schedule.scheduler.shutdown();
 		try {
 			schedule.finalize();
@@ -65,7 +67,7 @@ public class Scheduler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		MIP.setStatus(statusType.stopped);
+		AMPLIFUND.setStatus(statusType.stopped);
 
 	}
 

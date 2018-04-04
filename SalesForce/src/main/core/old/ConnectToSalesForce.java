@@ -13,6 +13,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import main.core.salesForce;
+import main.core.mail.Format;
+import main.core.mail.Mailing;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -103,6 +105,8 @@ public class ConnectToSalesForce {
 			JSONObject ljsonResponse = RestCalls.RestPostWithFormEncoding(lstrPath, lstrbldrRequestBody.toString());
 			if (null == ljsonResponse) {
 				Constants.ACCESS_TOKEN=null;
+/*				Format format = Format.build().addSystem("SALESFORCE").addError("Failed to Authenticate");
+				Mailing.sendMail(format, "2");*/
 				return;
 			}
 			OauthResponse.SetGlobalVariablesFromResponse(ljsonResponse);
@@ -118,6 +122,7 @@ public class ConnectToSalesForce {
 			Constants.OAUTH_HEADER = null;
 			Constants.BASE_URI = null;
 			ioe.printStackTrace();
+
 		}
 	}
 

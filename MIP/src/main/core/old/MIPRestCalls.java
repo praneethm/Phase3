@@ -31,9 +31,9 @@ import org.json.simple.parser.ParseException;
  *
  * @author Saranya
  */
-public class RestCalls {
+public class MIPRestCalls {
 
-	private static final Logger LOGGER = Logger.getLogger(RestCalls.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(MIPRestCalls.class.getName());
 
 	/**
 	 * Retrieves a JSON response from the give URL
@@ -43,19 +43,19 @@ public class RestCalls {
 	 * @param lenumRequestingClass
 	 * @return : JSON response received from the REST URL.
 	 */
-	public static JSONObject RestGet(String pstrPath, Constants.REQUESTING_CLASS lenumRequestingClass) {
+	public static JSONObject RestGet(String pstrPath, MIPConstants.REQUESTING_CLASS lenumRequestingClass) {
 
 		try {
 			JSONObject lobjJsonObject = null;
 			HttpGet lobjHttpGet = new HttpGet(pstrPath);
 			switch (lenumRequestingClass) {
 			case SALESFORCE:
-				lobjHttpGet.addHeader(Constants.OAUTH_HEADER);
-				lobjHttpGet.addHeader(Constants.PRETTY_PRINT_HEADER);
+				lobjHttpGet.addHeader(MIPConstants.OAUTH_HEADER);
+				lobjHttpGet.addHeader(MIPConstants.PRETTY_PRINT_HEADER);
 				break;
 			case MIP:
 
-				lobjHttpGet.addHeader(Constants.MIP_AUTH_HEADER);
+				lobjHttpGet.addHeader(MIPConstants.MIP_AUTH_HEADER);
 				lobjHttpGet.addHeader(new BasicHeader("Accept", "application/json"));
 				break;
 			}
@@ -99,7 +99,7 @@ public class RestCalls {
 	 * @return : JSON response received from the REST URL.
 	 */
 	public static JSONObject RestPost(String pstrPath, JSONObject pjsonValuesToPost,
-			Constants.REQUESTING_CLASS lenumRequestingClass) {
+			MIPConstants.REQUESTING_CLASS lenumRequestingClass) {
 
 		JSONObject ljsonResponse = null;
 		try {
@@ -107,7 +107,7 @@ public class RestCalls {
 			HttpClient lhttpclientObject = HttpClientBuilder.create().build();
 			HttpPost lhttppostObject = new HttpPost(pstrPath);
 
-			lhttppostObject.addHeader(Constants.MIP_AUTH_HEADER);
+			lhttppostObject.addHeader(MIPConstants.MIP_AUTH_HEADER);
 			lhttppostObject.addHeader(new BasicHeader("Accept", "application/json"));
 
 			// The message we are going to post
@@ -147,7 +147,7 @@ public class RestCalls {
 				break;
 			}
 		} catch (Exception ex) {
-			Logger.getLogger(RestCalls.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(MIPRestCalls.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		return ljsonResponse;
 	}
@@ -172,7 +172,7 @@ public class RestCalls {
 			lstrRequestBody.setContentType("application/x-www-form-urlencoded");
 			lhttppostObject.setEntity(lstrRequestBody);
 
-			lhttppostObject.addHeader(Constants.PRETTY_PRINT_HEADER);
+			lhttppostObject.addHeader(MIPConstants.PRETTY_PRINT_HEADER);
 			System.out.println("\n\n Before Execute " + lhttppostObject.toString());
 			// Make the request and store the result
 			HttpResponse lhttpresponseObject = lhttpclientObject.execute(lhttppostObject);
@@ -195,9 +195,9 @@ public class RestCalls {
 				//System.exit(-1);
 			}
 		} catch (UnsupportedEncodingException ex) {
-			Logger.getLogger(RestCalls.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(MIPRestCalls.class.getName()).log(Level.SEVERE, null, ex);
 		} catch (IOException ex) {
-			Logger.getLogger(RestCalls.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(MIPRestCalls.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		return ljsonResponse;
 	}
@@ -216,8 +216,8 @@ public class RestCalls {
 			// Set up the objects necessary to make the request.
 			HttpClient httpClient = HttpClientBuilder.create().build();
 			HttpPatch httpPatch = new HttpPatch(pstrPath);
-			httpPatch.addHeader(Constants.OAUTH_HEADER);
-			httpPatch.addHeader(Constants.PRETTY_PRINT_HEADER);
+			httpPatch.addHeader(MIPConstants.OAUTH_HEADER);
+			httpPatch.addHeader(MIPConstants.PRETTY_PRINT_HEADER);
 			StringEntity body = new StringEntity(pjsonValuesToUpdate.toJSONString());
 			body.setContentType("application/json");
 			httpPatch.setEntity(body);
@@ -228,7 +228,7 @@ public class RestCalls {
 			// Process the response
 			return response.getStatusLine().getStatusCode();
 		} catch (Exception ex) {
-			Logger.getLogger(RestCalls.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(MIPRestCalls.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		return -1;
 	}
@@ -257,16 +257,16 @@ public class RestCalls {
 		return lstrFinalInput;
 	}
 
-	public static String RestGetDocument(String pstrPath, Constants.REQUESTING_CLASS lenumRequestingClass) {
+	public static String RestGetDocument(String pstrPath, MIPConstants.REQUESTING_CLASS lenumRequestingClass) {
 		try {
 			HttpGet lobjHttpGet = new HttpGet(pstrPath);
 			switch (lenumRequestingClass) {
 			case SALESFORCE:
-				lobjHttpGet.addHeader(Constants.OAUTH_HEADER);
-				lobjHttpGet.addHeader(Constants.PRETTY_PRINT_HEADER);
+				lobjHttpGet.addHeader(MIPConstants.OAUTH_HEADER);
+				lobjHttpGet.addHeader(MIPConstants.PRETTY_PRINT_HEADER);
 				break;
 			case MIP:
-				lobjHttpGet.addHeader(Constants.MIP_AUTH_HEADER);
+				lobjHttpGet.addHeader(MIPConstants.MIP_AUTH_HEADER);
 				lobjHttpGet.addHeader(new BasicHeader("Accept", "application/json"));
 				break;
 			}
@@ -290,7 +290,7 @@ public class RestCalls {
 		}
 	}
 
-	public static JSONArray RestGetJsonArray(String pstrPath, Constants.REQUESTING_CLASS lenumRequestingClass) {
+	public static JSONArray RestGetJsonArray(String pstrPath, MIPConstants.REQUESTING_CLASS lenumRequestingClass) {
 
 		try {
 			JSONObject jobj;
@@ -298,12 +298,12 @@ public class RestCalls {
 			HttpGet lobjHttpGet = new HttpGet(pstrPath);
 			switch (lenumRequestingClass) {
 			case SALESFORCE:
-				lobjHttpGet.addHeader(Constants.OAUTH_HEADER);
-				lobjHttpGet.addHeader(Constants.PRETTY_PRINT_HEADER);
+				lobjHttpGet.addHeader(MIPConstants.OAUTH_HEADER);
+				lobjHttpGet.addHeader(MIPConstants.PRETTY_PRINT_HEADER);
 				break;
 			case MIP:
 
-				lobjHttpGet.addHeader(Constants.MIP_AUTH_HEADER);
+				lobjHttpGet.addHeader(MIPConstants.MIP_AUTH_HEADER);
 				lobjHttpGet.addHeader(new BasicHeader("Accept", "application/json"));
 				break;
 			}

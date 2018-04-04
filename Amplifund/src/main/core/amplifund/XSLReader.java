@@ -14,18 +14,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import com.main.business.Constants;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
-
-import com.graphbuilder.math.func.CosFunction;
-
-import main.core.MIP;
+import main.core.AMPLIFUND;
 import main.core.Plugin.statusType;
-import main.core.old.Constants;
 /**
  * 
  * @author Jon Cornado
@@ -39,7 +36,7 @@ public class XSLReader {
 	private String location = "";// "C:\\Users\\Jon Cornado\\OneDrive\\eclipse-workspace\\MIP\\AF Export.xls";
 	private String date = "";
 	static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-	Connection connection = MIP.conn;
+	Connection connection = AMPLIFUND.conn;
 	PreparedStatement ps;
 	ResultSet rs = null;
 	// select * from upd_string('Test String');
@@ -53,6 +50,7 @@ public class XSLReader {
  * Excel file has two fields "Debit" "Credit" which are merged into one field where Debit is +ve and Credit is -ve amount
  */
 	public void readDocument() {
+		BatchProcess.process();
 		System.out.println("starting read process");
 		location = Constants.LOCATION;
 
@@ -61,6 +59,7 @@ public class XSLReader {
 			rs = ps.executeQuery();
 			rs.next();
 			String temp = rs.getString(1);
+			temp = null==rs.getString(1)?"":temp;
 			System.out.println("displaying date from db" + rs.getString(1));
 			if ((temp.contains("AM") || temp.contains("PM")) && temp.contains(":")) {
 				date = temp;
@@ -191,13 +190,17 @@ public class XSLReader {
 				// System.out.println("-------------------------------------------------");
 			}
 			System.out.println(values);
-
+			BatchProcess.process();
 			if (values.size() > 1) {
 				changeFileName(file);
-				MIP.setinterfaceData("AMPLIFUND", values);
+				//AMPLIFUND.setinterfaceData("AMPLIFUND", values);
+				AMPLIFUND.expense(values);
 
 			}
 
+		}
+		else {
+			System.out.println("file is not available for amplifund");
 		}
 
 	}

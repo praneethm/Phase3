@@ -31,8 +31,8 @@ public class ConnectToMip {
 		try {
 			LoginIntoMip();
 			System.out.println("________________Distribution Code_______________");
-			String lstrPath = Constants.MIP_BASE_URI + "/api/dc";
-			JSONObject ljsonDistributionCodes = RestCalls.RestGet(lstrPath, Constants.REQUESTING_CLASS.MIP);
+			String lstrPath = MIPConstants.MIP_BASE_URI + "/api/dc";
+			JSONObject ljsonDistributionCodes = MIPRestCalls.RestGet(lstrPath, MIPConstants.REQUESTING_CLASS.MIP);
 			System.out.println("Distribution Code List :\n" + ljsonDistributionCodes.toJSONString());
 
 			ResponseBuilder lresponseBuilder = Response.status(Status.OK);
@@ -54,8 +54,8 @@ public class ConnectToMip {
 			LoginIntoMip();
 
 			System.out.println("________________Distribution Code_______________");
-			String lstrPath = Constants.MIP_BASE_URI + "/api/customers/lookups/CUSTOMER_ID";
-			JSONObject ljsonDistributionCodes = RestCalls.RestGet(lstrPath, Constants.REQUESTING_CLASS.MIP);
+			String lstrPath = MIPConstants.MIP_BASE_URI + "/api/customers/lookups/CUSTOMER_ID";
+			JSONObject ljsonDistributionCodes = MIPRestCalls.RestGet(lstrPath, MIPConstants.REQUESTING_CLASS.MIP);
 			System.out.println("Distribution Code List :\n" + ljsonDistributionCodes.toJSONString());
 
 			ResponseBuilder lresponseBuilder = Response.status(Status.OK);
@@ -82,8 +82,8 @@ public class ConnectToMip {
 			JSONObject ljsonChartOfAccounts;
 
 			// Get the COA code based on segment id and code description
-			lstrPath = Constants.MIP_BASE_URI + "/api/coa/segments/accounts";
-			ljsonChartOfAccounts = RestCalls.RestGet(lstrPath, Constants.REQUESTING_CLASS.MIP);
+			lstrPath = MIPConstants.MIP_BASE_URI + "/api/coa/segments/accounts";
+			ljsonChartOfAccounts = MIPRestCalls.RestGet(lstrPath, MIPConstants.REQUESTING_CLASS.MIP);
 			System.out.println("Chart Of Accounts :\n" + ljsonChartOfAccounts.toJSONString());
 
 			JSONArray ljsonCoaArray = (JSONArray) ljsonChartOfAccounts.get("COA_SEGID");
@@ -126,8 +126,8 @@ public class ConnectToMip {
 			JSONObject ljsonChartOfAccounts;
 
 			// Get the COA code based on segment id and code description
-			lstrPath = Constants.MIP_BASE_URI + "/api/coa/segments/accounts";
-			ljsonChartOfAccounts = RestCalls.RestGet(lstrPath, Constants.REQUESTING_CLASS.MIP);
+			lstrPath = MIPConstants.MIP_BASE_URI + "/api/coa/segments/accounts";
+			ljsonChartOfAccounts = MIPRestCalls.RestGet(lstrPath, MIPConstants.REQUESTING_CLASS.MIP);
 			System.out.println("Chart Of Accounts :\n" + ljsonChartOfAccounts.toJSONString());
 
 			JSONArray ljsonCoaArray = (JSONArray) ljsonChartOfAccounts.get("COA_SEGID");
@@ -155,12 +155,13 @@ public class ConnectToMip {
 
 	public static void LoginIntoMip(String login, String password, String MIP_BASE_URI) {
 		try {
-			// Constants.ReadFileForMipUrl();
-			Constants.MIP_BASE_URI = MIP_BASE_URI;
+			MIPConstants.ReadFileForMipUrl();
+			System.out.println(MIP_BASE_URI);
+			MIPConstants.MIP_BASE_URI = MIP_BASE_URI;
 			String lstrPath = MIP_BASE_URI + "/api/security/login";
 			System.out.println("________________Login into MIP_______________");
 			System.out.println("Path for Login : " + lstrPath);
-
+ 
 			// create the JSON object containing the new contacts details.
 			JSONObject ljsonLoginCredentials = new JSONObject();
 			ljsonLoginCredentials.put("login", login);
@@ -169,17 +170,17 @@ public class ConnectToMip {
 
 			System.out.println("JSON for Login into MIP :\n" + ljsonLoginCredentials.toJSONString());
 
-			JSONObject ljsonResponse = RestCalls.RestPost(lstrPath, ljsonLoginCredentials,
-					Constants.REQUESTING_CLASS.MIP);
+			JSONObject ljsonResponse = MIPRestCalls.RestPost(lstrPath, ljsonLoginCredentials,
+					MIPConstants.REQUESTING_CLASS.MIP);
 
 			if (ljsonResponse != null && ljsonResponse.containsKey("token")) {
-				Constants.MIP_TOKEN = ljsonResponse.get("token").toString();
+				MIPConstants.MIP_TOKEN = ljsonResponse.get("token").toString();
 			}
 			else {
-				Constants.MIP_TOKEN="";
+				MIPConstants.MIP_TOKEN="";
 			}
-			System.out.println("Token from response: " + Constants.MIP_TOKEN);
-			Constants.MIP_AUTH_HEADER = new BasicHeader("Authorization-Token", Constants.MIP_TOKEN);
+			System.out.println("Token from response: " + MIPConstants.MIP_TOKEN);
+			MIPConstants.MIP_AUTH_HEADER = new BasicHeader("Authorization-Token", MIPConstants.MIP_TOKEN);
 			System.out.println("________________END_______________");
 		} catch (Exception ex) {
 			Logger.getLogger(ConnectToMip.class.getName()).log(Level.SEVERE, null, ex);
@@ -190,12 +191,13 @@ public class ConnectToMip {
 	 * Logs into MIP using REST POST call.
 	 */
 	@SuppressWarnings("unchecked")
-	static void LoginIntoMip() {
+	public static Boolean LoginIntoMip() {
+		boolean isValid=false;
 		try {
-			Constants.ReadFileForMipUrl();
+			MIPConstants.ReadFileForMipUrl();
 			String lstrPath;
-			if (!Constants.USEONLINE)
-				lstrPath = Constants.MIP_BASE_URI + "/api/security/login";
+			if (!MIPConstants.USEONLINE)
+				lstrPath = MIPConstants.MIP_BASE_URI + "/api/security/login";
 			else
 				lstrPath = "https://login.abilaonline.com/api/v1/sso/mipadv/login";
 			System.out.println("________________Login into MIP_______________");
@@ -203,31 +205,39 @@ public class ConnectToMip {
 
 			// create the JSON object containing the new contacts details.
 			JSONObject ljsonLoginCredentials = new JSONObject();
-			if (Constants.USEONLINE)
-				ljsonLoginCredentials.put("username", Constants.MIP_LOGIN);
+			if (MIPConstants.USEONLINE)
+				ljsonLoginCredentials.put("username", MIPConstants.MIP_LOGIN);
 			else
-				ljsonLoginCredentials.put("login", Constants.MIP_LOGIN);
-			if (!Constants.USEONLINE)
-				ljsonLoginCredentials.put("org", Constants.MIP_ORG);
-			ljsonLoginCredentials.put("password", Constants.MIP_PASSWORD);
+				ljsonLoginCredentials.put("login", MIPConstants.MIP_LOGIN);
+			if (!MIPConstants.USEONLINE)
+				ljsonLoginCredentials.put("org", MIPConstants.MIP_ORG);
+			ljsonLoginCredentials.put("password", MIPConstants.MIP_PASSWORD);
 
 			System.out.println("JSON for Login into MIP :\n" + ljsonLoginCredentials.toJSONString());
 
-			JSONObject ljsonResponse = RestCalls.RestPost(lstrPath, ljsonLoginCredentials,
-					Constants.REQUESTING_CLASS.MIP);
+			JSONObject ljsonResponse = MIPRestCalls.RestPost(lstrPath, ljsonLoginCredentials,
+					MIPConstants.REQUESTING_CLASS.MIP);
 
 			if (ljsonResponse != null) {
-				if (Constants.USEONLINE)
-					Constants.MIP_TOKEN = ljsonResponse.get("accessToken").toString();
-				else
-					Constants.MIP_TOKEN = ljsonResponse.get("token").toString();
+				if (MIPConstants.USEONLINE) {
+					MIPConstants.MIP_TOKEN = ljsonResponse.get("accessToken").toString();
+					System.out.println("successfully got token");
+				}
+				else {
+					MIPConstants.MIP_TOKEN = ljsonResponse.get("token").toString();
+				System.out.println("success in getting token from hosted mip server");
+				}
+				isValid=true;
 			}
-			System.out.println("Token from response: " + Constants.MIP_TOKEN);
-			Constants.MIP_AUTH_HEADER = new BasicHeader("Authorization-Token", Constants.MIP_TOKEN);
+			System.out.println("Token from response: " + MIPConstants.MIP_TOKEN);
+			MIPConstants.MIP_AUTH_HEADER = new BasicHeader("Authorization-Token", MIPConstants.MIP_TOKEN);
 			System.out.println("________________END_______________");
+			return isValid;
 		} catch (Exception ex) {
 			Logger.getLogger(ConnectToMip.class.getName()).log(Level.SEVERE, null, ex);
+			isValid=false;
 		}
+		return isValid;
 	}
 
 	/**
@@ -249,9 +259,9 @@ public class ConnectToMip {
 		try {
 			// Step 1 : Get the list of existing session id's
 			System.out.println("________________Session Id_______________");
-			lstrPath = Constants.MIP_BASE_URI + "/api/te/CR/sessions/ids";
+			lstrPath = MIPConstants.MIP_BASE_URI + "/api/te/CR/sessions/ids";
 			System.out.println("Path to fetch session id's : \n" + lstrPath);
-			ljsonSessionIds = RestCalls.RestGetJsonArray(lstrPath, Constants.REQUESTING_CLASS.MIP);
+			ljsonSessionIds = MIPRestCalls.RestGetJsonArray(lstrPath, MIPConstants.REQUESTING_CLASS.MIP);
 
 			// Step 2: Check if it contains the session id with today's date
 			for (int count = 0; count < ljsonSessionIds.size(); count++) {
@@ -265,9 +275,9 @@ public class ConnectToMip {
 				if (blnSessionExists) {
 					// Step 3: If session id exists, Check if it is unposted
 					System.out.println("________________Details of Unique Session_______________");
-					lstrPath = Constants.MIP_BASE_URI + "/api/te/CR/sessions/" + sessionId;
+					lstrPath = MIPConstants.MIP_BASE_URI + "/api/te/CR/sessions/" + sessionId;
 					System.out.println("Path for session details : \n" + lstrPath);
-					ljsonResponse = RestCalls.RestGet(lstrPath, Constants.REQUESTING_CLASS.MIP);
+					ljsonResponse = MIPRestCalls.RestGet(lstrPath, MIPConstants.REQUESTING_CLASS.MIP);
 					JSONArray jsonFieldsArray = (JSONArray) ljsonResponse.get("fields");
 					for (int count = 0; count < jsonFieldsArray.size(); count++) {
 						JSONObject ljsonObject = (JSONObject) jsonFieldsArray.get(count);
@@ -289,7 +299,7 @@ public class ConnectToMip {
 				} else {
 					try {
 						System.out.println("________________Create Unique Session_______________");
-						lstrPath = Constants.MIP_BASE_URI + "/api/te/CR/sessions";
+						lstrPath = MIPConstants.MIP_BASE_URI + "/api/te/CR/sessions";
 						System.out.println("Path for creation of session :\n " + lstrPath);
 
 						JSONObject jsonRequest = new JSONObject();
@@ -318,7 +328,7 @@ public class ConnectToMip {
 
 						jsonRequest.put("fields", jsonFieldsArray);
 						System.out.println("Request :\n" + jsonRequest.toJSONString());
-						ljsonResponse = RestCalls.RestPost(lstrPath, jsonRequest, Constants.REQUESTING_CLASS.MIP);
+						ljsonResponse = MIPRestCalls.RestPost(lstrPath, jsonRequest, MIPConstants.REQUESTING_CLASS.MIP);
 						blnSessionExists = true;
 						System.out.println("________________END_______________");
 					} catch (Exception ex) {
@@ -347,8 +357,8 @@ public class ConnectToMip {
 		String lstrGLCode;
 
 		try {
-			Constants.ReadFileForMipUrl();
-			String lstrPath = Constants.MIP_BASE_URI + "/api/te/CR/dc";
+			MIPConstants.ReadFileForMipUrl();
+			String lstrPath = MIPConstants.MIP_BASE_URI + "/api/te/CR/dc";
 			JSONObject temp;
 			temp = (JSONObject) ((new JSONParser().parse(obj.get("message").toJSONString())));
 			JSONObject sObject = null;
@@ -384,7 +394,7 @@ public class ConnectToMip {
 			 * {"TEUSEDISTCODE_AMT":"<AMT_FROM_SF>"},
 			 * {"TEUSEDISTCODE_CREDIT_OR_DEBIT":"<Debit>"}]}
 			 */
-			if (Constants.OFFSET.equalsIgnoreCase("true")) {
+			if (MIPConstants.OFFSET.equalsIgnoreCase("true")) {
 				jsonArrFields = new JSONArray();
 				JSONObject ljsonDistCodeId2 = new JSONObject();
 				ljsonDistCodeId2.put("TEUSEDISTCODE_DISTCODEID", lstrdistributionCode);
@@ -400,7 +410,7 @@ public class ConnectToMip {
 				jsonArrFields.add(ljsonLineDate2);
 
 				JSONObject ljsonLineGLCode2 = new JSONObject();
-				ljsonLineGLCode2.put("TEUSEDISTCODE_LINEGL", Constants.GLcode_CSH);
+				ljsonLineGLCode2.put("TEUSEDISTCODE_LINEGL", MIPConstants.GLcode_CSH);
 				jsonArrFields.add(ljsonLineGLCode2); // GL Code
 
 				JSONObject ljsonAmount2 = new JSONObject();
@@ -419,7 +429,7 @@ public class ConnectToMip {
 				// Post to MIP - Debit
 				System.out.println("_____________________________Debit____________________________");
 				System.out.println("Request for Debit :\n" + jsonObjFields.toString());
-				ljsonResponse = RestCalls.RestPost(lstrPath, jsonObjFields, Constants.REQUESTING_CLASS.MIP);
+				ljsonResponse = MIPRestCalls.RestPost(lstrPath, jsonObjFields, MIPConstants.REQUESTING_CLASS.MIP);
 				System.out.println("Response for Debit : \n" + ljsonResponse.toJSONString());
 				System.out.println("_________________________________________________________");
 
@@ -476,12 +486,12 @@ public class ConnectToMip {
 			// Post to MIP - Credit
 			System.out.println("_____________________________Credit____________________________");
 			System.out.println("Request for Credit : \n" + jsonObjFields.toJSONString());
-			ljsonResponse = RestCalls.RestPost(lstrPath, jsonObjFields, Constants.REQUESTING_CLASS.MIP);
+			ljsonResponse = MIPRestCalls.RestPost(lstrPath, jsonObjFields, MIPConstants.REQUESTING_CLASS.MIP);
 			System.out.println("Response for Credit : \n" + ljsonResponse.toJSONString());
 			System.out.println("_________________________________________________________");
 
 			// larrFinalTransaction = new JSONArray();
-			if (Constants.OFFSET.equalsIgnoreCase("true")) {
+			if (MIPConstants.OFFSET.equalsIgnoreCase("true")) {
 				if (ljsonResponse.containsKey("transactions")) {
 					JSONArray larrCredit = (JSONArray) ljsonResponse.get("transactions");
 					if (larrCredit.size() > 0)
@@ -492,9 +502,9 @@ public class ConnectToMip {
 						}
 				}
 			} else {
-				OffsetTransaction = RestCalls.RestPost(
-						Constants.MIP_BASE_URI + "/api/te/cr/sessions/" + getSessionId() + "/documents/offsets",
-						ljsonResponse, Constants.REQUESTING_CLASS.MIP);
+				OffsetTransaction = MIPRestCalls.RestPost(
+						MIPConstants.MIP_BASE_URI + "/api/te/cr/sessions/" + getSessionId() + "/documents/offsets",
+						ljsonResponse, MIPConstants.REQUESTING_CLASS.MIP);
 				System.out.println("printing values from offset");
 				System.out.println(OffsetTransaction);
 				if (OffsetTransaction.containsKey("transactions")) {
@@ -540,14 +550,14 @@ public class ConnectToMip {
 			larrFields.add(lobjDocAmount);
 			ljsonInsertDocument.put("fields", larrFields);
 
-			lstrPath = Constants.MIP_BASE_URI + "/api/te/CR/sessions/" + getSessionId() + "/documents";
+			lstrPath = MIPConstants.MIP_BASE_URI + "/api/te/CR/sessions/" + getSessionId() + "/documents";
 
 			LoginIntoMip();
 			// Post Document to Session
 			System.out.println("_____________________________Add Document to Session____________________________");
 			System.out.println("Path for inserting document : \n" + lstrPath);
 			System.out.println("Request for inserting document :\n" + ljsonInsertDocument.toString());
-			ljsonResponse = RestCalls.RestPost(lstrPath, ljsonInsertDocument, Constants.REQUESTING_CLASS.MIP);
+			ljsonResponse = MIPRestCalls.RestPost(lstrPath, ljsonInsertDocument, MIPConstants.REQUESTING_CLASS.MIP);
 			System.out.println("_________________________________________________________");
 			System.out.println("_____________________________END____________________________");
 
