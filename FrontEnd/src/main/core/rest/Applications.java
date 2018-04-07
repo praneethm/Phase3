@@ -163,10 +163,10 @@ public class Applications {
 		MasterBean.getSystems();
 		System.out.println("updated credentials service called");
 		System.out.println(json);
-		String system="";
+		String system = "";
 		JSONArray arr = new JSONArray(json);
 		for (int i = 0; i < arr.length(); i++) {
-			system=arr.getJSONObject(i).getString("system");
+			system = arr.getJSONObject(i).getString("system");
 			String key = arr.getJSONObject(i).getString("key");
 			String value = String.valueOf(arr.getJSONObject(i).get("value"));
 			value = value.equalsIgnoreCase("") ? null : value;
@@ -177,13 +177,13 @@ public class Applications {
 		if (!MasterBean.updateDatabase())
 			return Response.status(500).entity("failed values to database, please contact support").build();
 		// return Response.status(200).build();
-		
+
 		Plugin plugin = PluginService.StaticPluginCalls(system);
-		if(plugin.validate()) {
+		if (plugin.validate()) {
 			return Response.status(200).entity("Credentials are validated successfully").build();
 		}
-		
-		return Response.status(201).entity("credentials are invalid or the "+system+" seems to be offline").build();
+
+		return Response.status(201).entity("credentials are invalid or the " + system + " seems to be offline").build();
 
 	}
 
@@ -259,6 +259,32 @@ public class Applications {
 
 		Plugin plugin = PluginService.StaticPluginCalls(system);
 		return plugin == null ? "{requested system does not exist}" : plugin.getStatus().toString();
+	}
+
+	@POST
+	@Path("/changeStatus")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String changeApplicationStatus(String json) {
+		String system = "";
+		String status = "";
+		System.out.println(json);
+		JSONObject obj = new JSONObject(json);
+		system=obj.getString("name");
+		status=obj.getString("status");
+		
+		if (status.equalsIgnoreCase("stopped")) {
+			System.out.println("starting application");
+			PluginService.plugins.get(system).run("");
+
+		} else if (status.equalsIgnoreCase("running")) {
+			PluginService.plugins.get(system).stop();
+		}
+		//{"name":"AMPLIFUND","status":"stopped"}
+		obj= new JSONObject();
+		obj.put("name", system);
+		obj.put("status",PluginService.plugins.get(system).getStatus() );
+		
+		return new JSONArray().put(obj).toString();
 	}
 
 }

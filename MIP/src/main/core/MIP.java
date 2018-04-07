@@ -25,7 +25,7 @@ public class MIP implements Plugin {
 	private static Listner listner;
 	public static HashMap<String, LinkedBlockingQueue<JSONObject>> processData = new HashMap<>();
 	public static HashMap<String, Object> interfaceData = new HashMap<>();
-	public static statusType status = statusType.loading;
+	public static statusType status = statusType.passive;
 
 	@Override
 	public String getPluginName() {

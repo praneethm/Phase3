@@ -1,0 +1,203 @@
+---add key type column to the system keys table.
+
+ALTER table public.system_keys add key_type character varying
+
+ALTER table public.system_keys add effectedKey character varying
+
+ALTER table public.system_keys add url character varying
+
+ALTER table public.system_keys add options character varying
+
+ALTER table public.system_keys add display_name character varying
+
+ALTER table public.system_keys add tool_tip character varying
+
+ALTER table public.settings_keys add display_name character varying;
+
+ALTER table public.settings_keys add tool_tip character varying;
+
+ALTER table public.settings_keys add visibility boolean;
+
+ALTER table public.system_keys add visibility boolean;
+
+ALTER table public.af_failed_transactions add grant_code character varying;
+
+ALTER table public.af_failed_transactions add gl_code character varying;
+
+ALTER table public.af_failed_transactions rename column "budgetitemid" to "name";
+
+---updating PL to return key type along with key/value
+DROP FUNCTION view_cred(character varying);
+
+
+CREATE OR REPLACE FUNCTION view_cred(IN sysname character varying)
+  RETURNS TABLE(keys character varying, val character varying, type character varying,effectedkey character varying,url character varying,options character varying, display character varying,tooltip  character varying, visible boolean) AS
+$BODY$
+DECLARE 
+    var_r record;
+BEGIN
+   FOR var_r IN(select  sk.S_KEY as Keys, cr.KEY_VALUE as Val, sk.KEY_TYPE as Type, sk.EFFECTEDKEY as effectedkey,sk.URL as url,sk.OPTIONS as options, sk.display_name as display_name, sk.tool_tip as tool_tip,sk.visibility as visible
+		from CREDENTIALS cr  
+		INNER JOIN SYSTEM_KEYS sk 
+		ON cr.KEY_ID = sk.KEY_ID
+		INNER JOIN SYSTEMS s 
+		ON s.S_ID = sk.S_ID
+		where s.S_NAME = $1 order by cast(sk.key_order as int))  
+     LOOP
+              keys := var_r.Keys ; 
+              val := var_r.Val;
+              type := var_r.Type;
+              effectedkey := var_r.effectedkey;
+              url := var_r.url;
+              options := var_r.options;
+              display := var_r.display_name;
+              tooltip := var_r.tool_tip;
+              visible := var_r.visible;
+              RETURN NEXT;
+            END LOOP;
+END; 
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+ALTER FUNCTION view_cred(character varying)
+  OWNER TO postgres;
+
+  
+  
+  
+  ---create SYSTEM_SETTINGS table
+CREATE TABLE SYSTEMS_SETTINGS(
+  SETTINGS_ID serial PRIMARY KEY ,
+  SETTINGS_NAME character varying
+);
+
+----create Settings_keys table
+CREATE TABLE SETTINGS_KEYS(
+  SETTINGS_ID serial ,
+  SETTINGS_KEY character varying,
+  KEY_ID character varying,
+  KEY_ORDER integer,
+  KEY_TYPE character varying,
+  effectedkey character varying,
+  url character varying,
+  options character varying,
+  CONSTRAINT SETTINGS_KEYS_SETTINGS_ID_fkey FOREIGN KEY (SETTINGS_ID)
+      REFERENCES SYSTEMS_SETTINGS (SETTINGS_ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT SETTINGS_KEYS_KEY_ID_key UNIQUE (KEY_ID)
+);
+
+
+
+    CREATE TABLE SETTINGS_CREDENTIALS(
+  CR_ID serial ,
+  KEY_VALUE character varying,
+  KEY_ID character varying,
+  CONSTRAINT SETTINGS_CREDENTIALS_pkey PRIMARY KEY (CR_ID),
+  CONSTRAINT SETTINGS_CREDENTIALS_KEY_ID_fkey FOREIGN KEY (KEY_ID)
+      REFERENCES SETTINGS_KEYS (KEY_ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT SETTINGS_CREDENTIALS_KEY_ID_key UNIQUE (KEY_ID)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE CREDENTIALS
+  OWNER TO postgres;
+  
+  
+  
+  
+  
+-- view settings credentials
+DROP FUNCTION view_settings_cred(character varying);
+  
+CREATE OR REPLACE FUNCTION view_settings_cred(IN sysname character varying)
+  RETURNS TABLE(keys character varying, val character varying, type character varying,effectedkey character varying,url character varying,options character varying, display character varying, tooltip character varying) AS
+$BODY$
+DECLARE 
+    var_r record;
+BEGIN
+   FOR var_r IN(select  sk.settings_KEY as Keys, cr.KEY_VALUE as Val, sk.KEY_TYPE as Type, sk.EFFECTEDKEY as effectedkey,sk.URL as url,sk.OPTIONS as options, sk.display_name as display_name, sk.tool_tip as tool_tip
+		from SETTINGS_CREDENTIALS cr  
+		INNER JOIN SETTINGS_KEYS sk 
+		ON cr.KEY_ID = sk.KEY_ID
+		INNER JOIN SYSTEMS_SETTINGS s 
+		ON s.settings_ID = sk.settings_ID
+		where s.settings_NAME = $1 order by cast(sk.key_order as int))  
+     LOOP
+              keys := var_r.Keys ; 
+              val := var_r.Val;
+              type := var_r.Type;
+              effectedkey := var_r.effectedkey;
+              url := var_r.url;
+              options := var_r.options;
+              display :=var_r.display_name;
+              tooltip :=var_r.tool_tip;
+              RETURN NEXT;
+            END LOOP;
+END; 
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+ALTER FUNCTION view_cred(character varying)
+  OWNER TO postgres;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  --- update setting keyvalue
+  DROP FUNCTION upd_settings_keyvalue(character varying,character varying,character varying);
+  
+  CREATE OR REPLACE FUNCTION upd_settings_keyvalue(
+    IN key_val character varying,
+    IN sys_name character varying,
+    IN key_name character varying)
+  RETURNS TABLE(key_values character varying) AS
+$BODY$
+BEGIN
+update settings_CREDENTIALS 
+set KEY_VALUE = $1
+where KEY_ID = (select cr.KEY_ID from settings_KEYS as sk 
+                     INNER JOIN settings_CREDENTIALS as cr  
+                     ON  cr.KEY_ID = sk.KEY_ID
+                     INNER JOIN SYSTEMS_settings as s
+		     ON  s.settings_ID = sk.settings_ID
+		     where s.settings_NAME = $2 and sk.settings_KEY=$3
+		    );
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+ALTER FUNCTION upd_settings_keyvalue(character varying, character varying, character varying)
+  OWNER TO postgres;
+  
+  
+  
+  --- update failed transactions PL
+  drop function ins_af_failed_trans( character varying,  character varying,  character varying,  character varying,  character varying,  character varying);
+  
+  CREATE OR REPLACE FUNCTION ins_af_failed_trans(name character varying, descp character varying, directcst character varying, expensedate character varying, grantc character varying, gl character varying)
+  RETURNS integer AS
+$BODY$
+insert into af_failed_transactions(name,Description,DirectCost,ExpenseDateUtc,grant_code,gl_code) values ($1,$2,$3,$4,$5,$6)
+returning t_id;
+$BODY$
+  LANGUAGE sql VOLATILE;
+  
+  
+  
+  
+  
+  

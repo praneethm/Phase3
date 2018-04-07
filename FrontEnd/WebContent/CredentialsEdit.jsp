@@ -1,6 +1,5 @@
 
 
-<%@page import="org.apache.jasper.tagplugins.jstl.core.ForEach"%>
 <%@page import="main.core.MasterBean"%>
 <h1>Edit Credentials</h1>
 

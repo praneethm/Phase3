@@ -18,8 +18,9 @@ import main.core.mail.TemplateLvl2;
 
 /**
  * 
- * @author Jon Cornado 
- * @Description This is the entry to the Amplifund plugin. Interface details explained in the MipConnectorPlugin
+ * @author Jon Cornado
+ * @Description This is the entry to the Amplifund plugin. Interface details
+ *              explained in the MipConnectorPlugin
  *
  */
 public class AMPLIFUND implements Plugin {
@@ -31,7 +32,7 @@ public class AMPLIFUND implements Plugin {
 	private static final String name = "AMPLIFUND";
 	public static statusType status = statusType.loading;
 	private static Scheduler schedule;
-	
+
 	@Override
 	public String getPluginName() {
 		// TODO Auto-generated method stub
@@ -47,9 +48,10 @@ public class AMPLIFUND implements Plugin {
 	@Override
 	public boolean stop() {
 		// TODO Auto-generated method stub
+		schedule.stopScheculer();
 		return false;
 	}
-	
+
 	public static void setinterfaceData(String system, ArrayList<ArrayList<String>> values) {
 		interfaceData.put(system, values);
 		listner.process("AMPLIFUND", system);
@@ -59,8 +61,12 @@ public class AMPLIFUND implements Plugin {
 	@Override
 	public void run(Object interfaceData) {
 		// TODO Auto-generated method stub
-		ArrayList<ArrayList<String>> holder = (ArrayList<ArrayList<String>>) interfaceData;
-		expense(holder);
+		if (interfaceData instanceof String) {
+			schedule.startScheduler();
+		} else {
+			ArrayList<ArrayList<String>> holder = (ArrayList<ArrayList<String>>) interfaceData;
+			expense(holder);
+		}
 		// ArrayList<String> temp = holder.get(1);
 		// Process.execute(temp.get(3), temp.get(4), temp.get(2), temp.get(5),
 		// temp.get(6), temp.get(0));
@@ -99,7 +105,7 @@ public class AMPLIFUND implements Plugin {
 		int size = holder.size() - 1;
 		ArrayList<String> temp;
 		System.out.println("Printing expense in reverse order " + size);
-		TemplateLvl2 format =TemplateLvl2.build();
+		TemplateLvl2 format = TemplateLvl2.build();
 		boolean pass = true;
 		for (int i = size; i > 0; i--) {
 			// System.out.print("at "+i+"---");
@@ -107,14 +113,16 @@ public class AMPLIFUND implements Plugin {
 
 			System.out.println("inserting " + i + " record");
 			System.out.println(temp);
-			pass =Process.execute(temp.get(1),temp.get(3), temp.get(4), temp.get(2), temp.get(5), temp.get(6), temp.get(0),false);
-			if(!pass) {
+			pass = Process.execute(temp.get(1), temp.get(3), temp.get(4), temp.get(2), temp.get(5), temp.get(6),
+					temp.get(0), false);
+			if (!pass) {
 				format.addTransaction(temp.get(2), temp.get(3), temp.get(4), temp.get(5), temp.get(6));
-				format.hasTransactions=true;
+				format.hasTransactions = true;
 			}
 		}
-		if(format.hasTransactions) {
-			format.addError("Amplifund - transactions failed while processing EXCEL file").subject("Transactions Failed");
+		if (format.hasTransactions) {
+			format.addError("Amplifund - transactions failed while processing EXCEL file")
+					.subject("Transactions Failed");
 			Mailing.sendMail(format, "1");
 		}
 
